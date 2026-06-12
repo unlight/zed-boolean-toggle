@@ -53,23 +53,25 @@ fn position_to_offset(text: &Rope, position: Position) -> usize {
 }
 
 // Finds a target keyword near the cursor using regex
+// `extended_toggles` enables markdown/yaml/toml specific keywords (yes, no, on, off, 1, 0)
 fn find_toggle_target(
     text: &Rope,
     offset: usize,
-    is_markdown: bool,
+    extended_toggles: bool,
 ) -> Option<(usize, usize, String)> {
     let text_str = text.to_string();
     if text_str.is_empty() {
         return None;
     }
 
-    let keywords = if is_markdown {
+    // Define keywords based on the file type
+    let keywords = if extended_toggles {
         vec!["true", "false", "yes", "no", "on", "off", "1", "0"]
     } else {
         vec!["true", "false"]
     };
 
-    // (?i) makes it case-insensitive. \b ensures word boundaries (e.g., doesn't match "false" in "falsehood")
+    // (?i) makes it case-insensitive. \b ensures word boundaries.
     let pattern = format!(r"(?i)\b({})\b", keywords.join("|"));
     let re = Regex::new(&pattern).unwrap();
 
@@ -99,10 +101,11 @@ fn find_toggle_target(
     best_match
 }
 
-// Calculates the replacement string while preserving original case style (e.g., TRUE -> FALSE, True -> False)
-fn get_replacement(word: &str, is_markdown: bool) -> Option<(String, String)> {
+// Calculates the replacement string while preserving original case style
+fn get_replacement(word: &str, extended_toggles: bool) -> Option<(String, String)> {
     let lower = word.to_lowercase();
 
+    // Detect case style: ALL CAPS, Title Case, or lowercase
     let is_all_upper = word.chars().all(|c| c.is_uppercase() || !c.is_alphabetic())
         && word.chars().any(|c| c.is_alphabetic());
     let is_title = word.chars().next().map_or(false, |c| c.is_uppercase())
@@ -111,6 +114,7 @@ fn get_replacement(word: &str, is_markdown: bool) -> Option<(String, String)> {
             .skip(1)
             .all(|c| c.is_lowercase() || !c.is_alphabetic());
 
+    // Helper closure to apply the detected case style to the new word
     let apply_case = |replacement: &str| -> String {
         if is_all_upper {
             replacement.to_uppercase()
@@ -125,6 +129,7 @@ fn get_replacement(word: &str, is_markdown: bool) -> Option<(String, String)> {
         }
     };
 
+    // Match the lowercase version of the word and return the replacement + UI title
     match lower.as_str() {
         "true" => {
             let n = apply_case("false");
@@ -134,24 +139,29 @@ fn get_replacement(word: &str, is_markdown: bool) -> Option<(String, String)> {
             let n = apply_case("true");
             Some((n.clone(), format!("Toggle to {}", n)))
         }
-        "yes" if is_markdown => {
+
+        // Extended toggles (only active if extended_toggles is true)
+        "yes" if extended_toggles => {
             let n = apply_case("no");
             Some((n.clone(), format!("Toggle to {}", n)))
         }
-        "no" if is_markdown => {
+        "no" if extended_toggles => {
             let n = apply_case("yes");
             Some((n.clone(), format!("Toggle to {}", n)))
         }
-        "on" if is_markdown => {
+        "on" if extended_toggles => {
             let n = apply_case("off");
             Some((n.clone(), format!("Toggle to {}", n)))
         }
-        "off" if is_markdown => {
+        "off" if extended_toggles => {
             let n = apply_case("on");
             Some((n.clone(), format!("Toggle to {}", n)))
         }
-        "1" if is_markdown => Some(("0".to_string(), "Toggle to 0".to_string())),
-        "0" if is_markdown => Some(("1".to_string(), "Toggle to 1".to_string())),
+
+        // 1 and 0 don't have case styles, so we just return them directly
+        "1" if extended_toggles => Some(("0".to_string(), "Toggle to 0".to_string())),
+        "0" if extended_toggles => Some(("1".to_string(), "Toggle to 1".to_string())),
+
         _ => None,
     }
 }
@@ -161,11 +171,9 @@ impl LanguageServer for Backend {
     async fn initialize(&self, _: InitializeParams) -> Result<InitializeResult> {
         Ok(InitializeResult {
             capabilities: ServerCapabilities {
-                // We need incremental sync to efficiently update our rope
                 text_document_sync: Some(TextDocumentSyncCapability::Kind(
                     TextDocumentSyncKind::INCREMENTAL,
                 )),
-                // Advertise that we provide code actions
                 code_action_provider: Some(CodeActionProviderCapability::Simple(true)),
                 ..Default::default()
             },
@@ -206,19 +214,25 @@ impl LanguageServer for Backend {
         }
     }
 
-    // This is where the magic happens: providing the "Toggle" action to Zed
     async fn code_action(&self, params: CodeActionParams) -> Result<Option<CodeActionResponse>> {
         let mut actions = Vec::new();
         let uri = params.text_document.uri.clone();
 
         if let Some(doc) = self.documents.get(&uri) {
-            let is_markdown = doc.language_id == "markdown";
+            // Check if the current language supports extended toggles (Markdown, YAML, TOML)
+            // We use to_lowercase() to ensure we match "yaml" even if Zed sends "YAML"
+            let lang_id_lower = doc.language_id.to_lowercase();
+            let extended_toggles = matches!(
+                lang_id_lower.as_str(),
+                "markdown" | "yaml" | "toml" | "plaintext" | "text"
+            );
+
             let start_offset = position_to_offset(&doc.text, params.range.start);
 
             if let Some((w_start, w_end, word)) =
-                find_toggle_target(&doc.text, start_offset, is_markdown)
+                find_toggle_target(&doc.text, start_offset, extended_toggles)
             {
-                if let Some((new_word, title)) = get_replacement(&word, is_markdown) {
+                if let Some((new_word, title)) = get_replacement(&word, extended_toggles) {
                     let edit = TextEdit {
                         range: Range {
                             start: offset_to_position(&doc.text, w_start),

@@ -6,6 +6,6 @@ edition = "2021"
 [dependencies]
 tower-lsp = "0.20"     # LSP framework
 tokio = { version = "1", features = ["full"] }
-ropey = "1.6"          # Efficient text handling for LSP
-regex = "1.10"         # For finding keywords
-dashmap = "5.5"        # Thread-safe document storage
+ropey = "1.6"
+regex = "1.10"
+dashmap = "5.5"
