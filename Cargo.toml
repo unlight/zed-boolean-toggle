@@ -1,23 +1,10 @@
 [package]
-name = "zed_toggle_bool"
+name = "bool-toggle-extension"
 version = "0.1.0"
 edition = "2021"
-publish = false
-license = "MIT"
 
-# Zed extensions compile to a `cdylib` targeting `wasm32-wasip1`
-# (or `wasm32-wasi` on older toolchains).
 [lib]
-path = "src/lib.rs"
 crate-type = ["cdylib"]
 
 [dependencies]
-# The official extension API. Pin to a known version; Zed will load the
-# matching host bindings at runtime.
-zed_extension_api = "0.7.0"
-
-[profile.release]
-opt-level = "s"
-lto = true
-strip = true
-codegen-units = 1
+zed_extension_api = "0.1"

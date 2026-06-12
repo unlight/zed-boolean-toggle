@@ -2,19 +2,7 @@
   {
     "context": "Editor",
     "bindings": {
-      "ctrl-alt-x": [
-        "assistant::InsertIntoEditor",
-        { "text": "/toggle-bool ${ZED_SELECTED_TEXT}" }
-      ]
-    }
-  },
-  {
-    "context": "Editor && language == Markdown",
-    "bindings": {
-      "ctrl-alt-x": [
-        "assistant::InsertIntoEditor",
-        { "text": "/toggle-bool ${ZED_SELECTED_TEXT} --lang=Markdown" }
-      ]
+      "ctrl-alt-x": ["workspace::SendKeystrokes", "ctrl-. t o g g l e enter"]
     }
   }
 ]

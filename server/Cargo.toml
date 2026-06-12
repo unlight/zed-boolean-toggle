@@ -1,0 +1,11 @@
+[package]
+name = "bool-toggle-lsp"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tower-lsp = "0.20"     # LSP framework
+tokio = { version = "1", features = ["full"] }
+ropey = "1.6"          # Efficient text handling for LSP
+regex = "1.10"         # For finding keywords
+dashmap = "5.5"        # Thread-safe document storage

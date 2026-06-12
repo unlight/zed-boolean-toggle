@@ -1,2 +1,2 @@
-const ok = true;
+const ok = false;
 const notOk = false;
