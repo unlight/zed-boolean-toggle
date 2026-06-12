@@ -1,6 +1,6 @@
 id = "boolean-toggle"
 name = "Boolean Toggle"
-version = "0.1.1"
+version = "0.1.2"
 schema_version = 1
 authors = ["Your Name"]
 description = "Toggle true/false, yes/no, on/off, 1/0"
