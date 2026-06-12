@@ -27,3 +27,6 @@ It intelligently preserves your original casing (e.g., `true` ↔ `false`, `TRUE
    cargo build --release
    cp target/release/boolean-toggle-lsp ~/.cargo/bin/ # Linux/macOS
    # or copy target\release\boolean-toggle-lsp.exe %USERPROFILE%\.cargo\bin\ # Windows
+
+## License
+[MIT License](https://opensource.org/licenses/MIT) (c) 2026
