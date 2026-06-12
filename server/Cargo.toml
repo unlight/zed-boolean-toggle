@@ -1,10 +1,10 @@
 [package]
-name = "bool-toggle-lsp"
+name = "boolean-toggle-lsp"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-tower-lsp = "0.20"     # LSP framework
+tower-lsp = "0.20"
 tokio = { version = "1", features = ["full"] }
 ropey = "1.6"
 regex = "1.10"

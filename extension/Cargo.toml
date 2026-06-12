@@ -1,0 +1,10 @@
+[package]
+name = "boolean-toggle"
+version = "0.1.1"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"] # Required for Zed WASM extensions
+
+[dependencies]
+zed_extension_api = "0.7"
