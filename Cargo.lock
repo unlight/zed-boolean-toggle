@@ -40,13 +40,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "boolean-toggle-lsp"
-version = "0.3.0"
-dependencies = [
- "serde_json",
-]
-
-[[package]]
 name = "cfg-if"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"

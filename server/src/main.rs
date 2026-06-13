@@ -42,7 +42,7 @@ use std::{
     io::{self, BufRead, Read, Write},
 };
 
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 // ─── Toggle pairs ─────────────────────────────────────────────────────────────
 
@@ -877,9 +877,10 @@ mod tests {
     #[test]
     fn initialized_is_a_notification() {
         let mut s = Server::new();
-        assert!(s
-            .dispatch(json!({"jsonrpc":"2.0","method":"initialized","params":{}}))
-            .is_none());
+        assert!(
+            s.dispatch(json!({"jsonrpc":"2.0","method":"initialized","params":{}}))
+                .is_none()
+        );
     }
 
     #[test]
@@ -894,9 +895,10 @@ mod tests {
     #[test]
     fn unknown_notification_is_silently_ignored() {
         let mut s = Server::new();
-        assert!(s
-            .dispatch(json!({"jsonrpc":"2.0","method":"$/cancelRequest","params":{}}))
-            .is_none());
+        assert!(
+            s.dispatch(json!({"jsonrpc":"2.0","method":"$/cancelRequest","params":{}}))
+                .is_none()
+        );
     }
 
     #[test]
@@ -955,7 +957,8 @@ mod tests {
         let body = r#"{"jsonrpc":"2.0","method":"initialized","params":{}}"#;
         let frame = format!(
             "Content-Length: {}\r\nContent-Type: application/vscode-jsonrpc; charset=utf-8\r\n\r\n{}",
-            body.len(), body
+            body.len(),
+            body
         );
         let parsed = read_message(&mut Cursor::new(frame.as_bytes())).unwrap();
         assert_eq!(parsed["method"], "initialized");

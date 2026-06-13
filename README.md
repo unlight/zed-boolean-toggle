@@ -1,18 +1,15 @@
 # Boolean Toggle — Zed Extension
 
-A Zed editor extension that toggles boolean-like values in **any language**
-using a single keyboard shortcut.
-
----
+A Zed editor extension that toggles boolean-like values in any language
 
 ## Supported toggles
 
-| A side  | B side  | Variants (all automatically detected & preserved) |
-|---------|---------|---------------------------------------------------|
-| `true`  | `false` | `true` / `True` / `TRUE`                          |
-| `yes`   | `no`    | `yes` / `Yes` / `YES`                             |
-| `on`    | `off`   | `on`  / `On`  / `ON`                              |
-| `1`     | `0`     | (numeric — no case to preserve)                   |
+| A side | B side  | Variants (all automatically detected & preserved) |
+| ------ | ------- | ------------------------------------------------- |
+| `true` | `false` | `true` / `True` / `TRUE`                          |
+| `yes`  | `no`    | `yes` / `Yes` / `YES`                             |
+| `on`   | `off`   | `on` / `On` / `ON`                                |
+| `1`    | `0`     | (numeric — no case to preserve)                   |
 
 ### Case preservation
 
@@ -52,52 +49,39 @@ active: Yes               // → No
 
 The extension is active in 40+ languages out of the box:
 
-**Web:** JavaScript, TypeScript, JSX, TSX, HTML, CSS, SCSS, Vue, Svelte, Astro  
-**Systems:** Rust, C, C++, Go, Swift, Zig  
-**JVM / CLR:** Java, Kotlin, Scala, C#, Dart  
-**Scripting:** Python, Ruby, PHP, Lua, Elixir, Erlang, Haskell, OCaml, F#, Clojure, Julia, R  
-**Shell:** Bash, Fish  
-**Config / Data:** JSON, YAML, TOML, XML  
-**Docs / Text:** Markdown, Plain Text  
-**Other:** SQL, Dockerfile, Nix, Terraform, GDScript, GLSL
-
 To add more, append Zed's language name to the `language = [...]` array in
-`extension.toml`.  The canonical names are listed in Zed's default settings
+`extension.toml`. The canonical names are listed in Zed's default settings
 under `"languages"`.
-
----
 
 ## Architecture
 
 ```
 zed-boolean-toggle/
-├── extension.toml             ← Zed extension manifest (language list lives here)
-├── crates/
-│   ├── extension/             ← WASM adapter  (target: wasm32-wasip1)
-│   │   └── src/lib.rs         ← tells Zed which binary to launch
-│   └── lsp/                   ← native LSP server binary
-│       └── src/main.rs        ← all toggle logic lives here
+├── extension.toml         ← Zed extension manifest (language list lives here)
+├── extension/             ← WASM adapter  (target: wasm32-wasip1)
+│   └── lib.rs         ← tells Zed which binary to launch
+├── server/                ← native LSP server binary
+│   └── src/main.rs        ← all toggle logic lives here
 └── Makefile
 ```
 
 ### Why two crates?
 
 Zed extensions run as **WebAssembly** inside a sandbox — they can't run
-arbitrary native code.  Language servers, however, must run as **native OS
-processes**.  The split is therefore:
+arbitrary native code. Language servers, however, must run as native OS
+processes. The split is therefore:
 
-| Crate | Target | Role |
-|-------|--------|------|
-| `extension` | `wasm32-wasip1` | Zed plugin adapter — finds and spawns the LSP |
-| `lsp` | native OS binary | Language server — all toggle detection logic |
+| Crate       | Target           | Role                                          |
+| ----------- | ---------------- | --------------------------------------------- |
+| `extension` | `wasm32-wasip1`  | Zed plugin adapter — finds and spawns the LSP |
+| `server`    | native OS binary | Language server — all toggle detection logic  |
 
 ### Data flow
 
 ```
 Zed editor
   │  1. Opens any supported file → spawns boolean-toggle-lsp via stdin/stdout
-  │
-  │  2. User presses Ctrl+Alt+X
+  │  2. User presses Code Actions (`ctrl-.`)
   │  3. Zed sends textDocument/codeAction with cursor line + column
   │
   LSP server
@@ -144,11 +128,11 @@ detect_case_style("1")     → Lower   (no alpha chars → treat as lower)
 
 ## Requirements
 
-| Tool | Notes |
-|------|-------|
-| [Rust + Cargo](https://rustup.rs) | stable ≥ 1.78 |
-| `wasm32-wasip1` target | `make dev` installs it automatically |
-| [Zed](https://zed.dev) | 0.140+ recommended |
+| Tool                              | Notes                                |
+| --------------------------------- | ------------------------------------ |
+| [Rust + Cargo](https://rustup.rs) | stable ≥ 1.78                        |
+| `wasm32-wasip1` target            | `make dev` installs it automatically |
+| [Zed](https://zed.dev)            | 0.140+ recommended                   |
 
 ---
 
@@ -156,7 +140,7 @@ detect_case_style("1")     → Lower   (no alpha chars → treat as lower)
 
 ```bash
 # 1. Clone
-git clone https://github.com/yourname/zed-boolean-toggle
+git clone https://github.com/unlight/zed-boolean-toggle
 cd zed-boolean-toggle
 
 # 2. Build + install
@@ -165,41 +149,14 @@ make dev
 
 `make dev` does three things:
 
-1. `cargo build --release -p boolean-toggle-lsp` → builds the native binary
-2. `cargo install --path crates/lsp` → copies it to `~/.cargo/bin` (on `$PATH`)
-3. `cargo build --target wasm32-wasip1 --release -p boolean-toggle` → builds the WASM
+1. builds the native lsp binary
+2. copies it to `~/.cargo/bin` (on `$PATH`)
+3. builds the WASM
 
 ### Load the extension in Zed
 
 Open the **Extensions** panel (⌘⇧X / Ctrl⇧X) → **"Install Dev Extension"**
 → select this directory.
-
----
-
-## Keybinding
-
-Add this to `~/.config/zed/keymap.json`:
-
-```json
-[
-  {
-    "context": "Editor",
-    "bindings": {
-      "ctrl-alt-x": "editor::ToggleCodeActions"
-    }
-  }
-]
-```
-
-The `context: "Editor"` makes it available in every file type.
-If you want it only in specific languages, narrow the context:
-
-```json
-{
-  "context": "Editor && (language == Python || language == YAML)",
-  "bindings": { "ctrl-alt-x": "editor::ToggleCodeActions" }
-}
-```
 
 ### How the UX works
 
@@ -212,51 +169,43 @@ When the cursor is **not** on a toggle token, `editor::ToggleCodeActions`
 falls through to other code actions from TypeScript, ESLint, etc. — no
 interference.
 
-> **Tip:** the action is marked `"isPreferred": true`.  If a future Zed
+> **Tip:** the action is marked `"isPreferred": true`. If a future Zed
 > version adds an "apply preferred action" command, you'll be able to bind
 > that to get a truly single-keystroke toggle.
-
----
 
 ## Running tests
 
 ```bash
 make test
-# or:
-cargo test -p boolean-toggle-lsp
 ```
 
 The suite covers:
 
-| Category | Examples |
-|----------|---------|
-| All four pair types | true/false, yes/no, on/off, 1/0 |
-| Three case styles | lower, Title, UPPER |
-| Mixed case fallback | `tRuE` → `false` |
-| Cursor positions | start, middle, end, one-past-end of token |
-| Word boundaries | `trueValue`, `isFalse`, `$true`, `10`, `online`, `notable`, `yesterday` |
-| Multiple tokens per line | Cursor selects the right one |
-| WorkspaceEdit ranges | Exact character positions verified |
-| Action metadata | `isPreferred`, `kind`, title format |
-| Server dispatch | `initialize`, `didOpen`, `didChange`, `didClose` |
-| Transport | `Content-Length` framing round-trip |
-
----
+| Category                 | Examples                                                                |
+| ------------------------ | ----------------------------------------------------------------------- |
+| All four pair types      | true/false, yes/no, on/off, 1/0                                         |
+| Three case styles        | lower, Title, UPPER                                                     |
+| Mixed case fallback      | `tRuE` → `false`                                                        |
+| Cursor positions         | start, middle, end, one-past-end of token                               |
+| Word boundaries          | `trueValue`, `isFalse`, `$true`, `10`, `online`, `notable`, `yesterday` |
+| Multiple tokens per line | Cursor selects the right one                                            |
+| WorkspaceEdit ranges     | Exact character positions verified                                      |
+| Action metadata          | `isPreferred`, `kind`, title format                                     |
+| Server dispatch          | `initialize`, `didOpen`, `didChange`, `didClose`                        |
+| Transport                | `Content-Length` framing round-trip                                     |
 
 ## Building manually
 
 ```bash
 # Native LSP binary
-cargo build --release -p boolean-toggle-lsp
-# → target/release/boolean-toggle-lsp
+cargo build --release --manifest-path server/Cargo.toml
+# → server/target/release/boolean-toggle-lsp
 
 # WASM extension
 rustup target add wasm32-wasip1
 cargo build --target wasm32-wasip1 --release -p boolean-toggle
 # → target/wasm32-wasip1/release/boolean_toggle.wasm
 ```
-
----
 
 ## Production deployment
 
@@ -278,11 +227,9 @@ fn language_server_command(
 
 Upload platform binaries (`linux-x86_64`, `linux-aarch64`, `macos-x86_64`,
 `macos-aarch64`, `windows-x86_64`) to a GitHub Release and download them
-lazily on first use via Zed's `zed::download_file` API.  See the
+lazily on first use via Zed's `zed::download_file` API. See the
 [Zed extension docs](https://zed.dev/docs/extensions/developing-extensions)
 for the full API.
-
----
 
 ## Adding new toggle pairs
 
@@ -301,30 +248,10 @@ const TOGGLE_PAIRS: &[(&str, &str)] = &[
 ```
 
 Rules for new pairs:
+
 - Always lowercase canonical form (case detection/application is automatic)
 - Word-boundary checking is automatic — no extra configuration needed
 - Rebuild with `make build-lsp` and `cargo install --path crates/lsp`
-
----
-
-## Project layout reference
-
-```
-zed-boolean-toggle/
-├── Cargo.toml                  Workspace (two members)
-├── Makefile                    build / test / install helpers
-├── README.md                   this file
-├── extension.toml              Zed manifest — language list lives here
-└── crates/
-    ├── extension/
-    │   ├── Cargo.toml          crate-type = ["cdylib"], target = wasm32-wasip1
-    │   └── src/lib.rs          zed::Extension impl + register_extension! macro
-    └── lsp/
-        ├── Cargo.toml          binary crate, only dep = serde_json
-        └── src/main.rs         TOGGLE_PAIRS · CaseStyle · find_token_ci · tests
-```
-
----
 
 ## Contributing
 
@@ -332,8 +259,6 @@ zed-boolean-toggle/
 2. Every new toggle pair or behaviour needs a matching test in `main.rs`
 3. No new runtime dependencies without discussion — `serde_json` is the only one
 
----
-
 ## License
 
-MIT — see `LICENSE`.
+[MIT License](https://opensource.org/licenses/MIT) (c) 2026

@@ -1,5 +1,3 @@
-# ── Boolean Toggle – build targets ───────────────────────────────────────────
-#
 # Usage:
 #   make dev        → full development setup (build + install LSP)
 #   make build      → build both artefacts without installing
@@ -8,26 +6,20 @@
 
 .PHONY: build build-lsp build-ext test install-lsp dev clean
 
-# ─── Composite targets ────────────────────────────────────────────────────────
-
-## Full development setup: install the LSP binary and build the WASM extension.
+## Full development setup: install the LSP binary and build the WASM extension
 dev: install-lsp build-ext
 	@echo ""
 	@echo "✅  Development build complete."
 	@echo ""
 	@echo "Load the extension in Zed:"
 	@echo "  Extensions (⌘⇧X) → 'Install Dev Extension' → select this directory"
-	@echo ""
-	@echo "Add the keybinding to ~/.config/zed/keymap.json — see README.md."
 
-## Build both the WASM extension and the native LSP binary (no install).
+## Build both the WASM extension and the native LSP binary (no install)
 build: build-lsp build-ext
 
-# ─── Individual targets ───────────────────────────────────────────────────────
-
-## Build the native LSP server binary (release mode).
+## Build the native LSP server binary (release mode)
 build-lsp:
-	cargo build --release -p boolean-toggle-lsp
+	cargo build --release --manifest-path server/Cargo.toml
 
 ## Ensure the wasm32-wasip1 target is installed, then build the WASM extension.
 build-ext:
@@ -36,12 +28,13 @@ build-ext:
 
 ## Install the LSP binary to Cargo's bin directory (puts it on PATH).
 install-lsp: build-lsp
-	cargo install --path crates/lsp --force
+	cargo install --path server --force
 
 ## Run all unit tests (LSP crate; extension crate is WASM-only).
 test:
-	cargo test -p boolean-toggle-lsp -- --color always 2>&1
+	cargo test --manifest-path server/Cargo.toml -- --color always 2>&1
 
 ## Remove build artefacts.
 clean:
 	cargo clean
+	cargo clean --manifest-path server/Cargo.toml

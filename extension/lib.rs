@@ -84,6 +84,8 @@ impl zed::Extension for BooleanToggleExtension {
             env: Default::default(),
         })
     }
+
+    // fn download_if_needed() {}
 }
 
 // Registers the extension with Zed
