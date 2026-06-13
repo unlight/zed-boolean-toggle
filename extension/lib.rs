@@ -28,9 +28,10 @@ impl zed::Extension for BooleanToggleExtension {
                 (zed::Os::Mac, zed::Architecture::X8664) => {
                     "boolean-toggle-lsp-x86_64-apple-darwin"
                 }
-                (zed::Os::Linux, zed::Architecture::Aarch64) => {
-                    "boolean-toggle-lsp-aarch64-unknown-linux-gnu"
-                }
+                // Not compiling
+                // (zed::Os::Linux, zed::Architecture::Aarch64) => {
+                //     "boolean-toggle-lsp-aarch64-unknown-linux-gnu"
+                // }
                 (zed::Os::Linux, zed::Architecture::X8664) => {
                     "boolean-toggle-lsp-x86_64-unknown-linux-gnu"
                 }
