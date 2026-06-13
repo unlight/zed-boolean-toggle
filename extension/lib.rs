@@ -46,8 +46,8 @@ impl zed::Extension for BooleanToggleExtension {
             // 4. If the binary doesn't exist yet, download it!
             if !Path::new(&lsp_path).exists() {
                 let release = zed::github_release_by_tag_name(
-                    "YOUR_USERNAME/zed-boolean-toggle",
-                    "v0.1.2", // The exact tag name of your GitHub release
+                    "unlight/zed-boolean-toggle",
+                    concat!("v", env!("CARGO_PKG_VERSION")), // The exact tag name of your GitHub release
                 )?;
 
                 // Search the release assets to find the one that matches our platform's filename

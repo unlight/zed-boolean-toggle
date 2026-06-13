@@ -1,4 +1,4 @@
-# Boolean Toggle — Zed Extension
+# Boolean Toggle - Zed Extension
 
 A Zed editor extension that toggles boolean-like values in any language
 
@@ -49,7 +49,7 @@ active: Yes               // → No
 
 The extension is active in 40+ languages out of the box:
 
-To add more, append Zed's language name to the `language = [...]` array in
+To add more, append Zed's language name to the `languages = [...]` array in
 `extension.toml`. The canonical names are listed in Zed's default settings
 under `"languages"`.
 
@@ -213,7 +213,7 @@ For the Zed extension marketplace, bundle pre-built binaries instead of
 relying on PATH:
 
 ```rust
-// crates/extension/src/lib.rs
+// extension/lib.rs
 fn language_server_command(
     &mut self,
     _id: &LanguageServerId,
@@ -233,7 +233,7 @@ for the full API.
 
 ## Adding new toggle pairs
 
-Edit `TOGGLE_PAIRS` in `crates/lsp/src/main.rs`:
+Edit `TOGGLE_PAIRS` in `server/src/main.rs`:
 
 ```rust
 const TOGGLE_PAIRS: &[(&str, &str)] = &[
@@ -251,7 +251,7 @@ Rules for new pairs:
 
 - Always lowercase canonical form (case detection/application is automatic)
 - Word-boundary checking is automatic — no extra configuration needed
-- Rebuild with `make build-lsp` and `cargo install --path crates/lsp`
+- Rebuild with `make build-lsp` and `cargo install --path server`
 
 ## Contributing
 

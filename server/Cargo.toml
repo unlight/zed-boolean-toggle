@@ -13,8 +13,8 @@ path = "src/main.rs"
 serde_json = "1"
 
 [profile.release]
-opt-level = 3          # Speed, not size
-lto = "fat"            # Full LTO
-codegen-units = 1      # Single unit for maximum inlining
-panic = "abort"        # No unwinding cost
-strip = false          # Keep symbols for profiling
+opt-level = 3 # Speed, not size
+lto = "fat" # Full LTO
+codegen-units = 1 # Single unit for maximum inlining
+panic = "abort" # No unwinding cost
+strip = false # Keep symbols for profiling

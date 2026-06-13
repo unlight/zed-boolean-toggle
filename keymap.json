@@ -1,4 +1,5 @@
 [
+  // Does not work
   {
     "context": "Editor",
     "bindings": {
