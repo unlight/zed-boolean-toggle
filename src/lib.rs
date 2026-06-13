@@ -4,6 +4,12 @@ use zed_extension_api as zed;
 // The core extension struct
 struct BooleanToggleExtension;
 
+impl BooleanToggleExtension {
+    fn download_if_needed(&mut self) -> zed::Result<()> {
+        Ok(())
+    }
+}
+
 impl zed::Extension for BooleanToggleExtension {
     fn new() -> Self {
         Self
@@ -48,7 +54,7 @@ impl zed::Extension for BooleanToggleExtension {
             if !Path::new(&lsp_path).exists() {
                 let release = zed::github_release_by_tag_name(
                     "unlight/zed-boolean-toggle",
-                    concat!("v", env!("CARGO_PKG_VERSION")), // The exact tag name of your GitHub release
+                    concat!("v", env!("CARGO_PKG_VERSION")), // The exact tag name of GitHub release
                 )?;
 
                 // Search the release assets to find the one that matches our platform's filename
@@ -69,6 +75,12 @@ impl zed::Extension for BooleanToggleExtension {
                 zed::make_file_executable(&lsp_path)?;
             }
         } else {
+            self.download_if_needed();
+            let ok = false;
+            let platf = zed::current_platform();
+            println!("DEBUG: plat is {:?}", platf);
+            let root_path = worktree.root_path();
+            println!("DEBUG: root_path is {}", root_path);
             // In a production extension, you would use zed::download_file to fetch the
             // pre-compiled binary for the user's platform from GitHub releases.
             // For this example, we assume `boolean-toggle-lsp` is in the PATH or worktree.
@@ -85,8 +97,6 @@ impl zed::Extension for BooleanToggleExtension {
             env: Default::default(),
         })
     }
-
-    // fn download_if_needed() {}
 }
 
 // Registers the extension with Zed

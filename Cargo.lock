@@ -36,6 +36,7 @@ checksum = "b4388bee8683e3d04af747c73422af53102d2bd24d9eadb6cbc100baef4b43f8"
 name = "boolean-toggle"
 version = "0.3.0"
 dependencies = [
+ "serde_json",
  "zed_extension_api",
 ]
 

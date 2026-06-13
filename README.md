@@ -53,29 +53,6 @@ To add more, append Zed's language name to the `languages = [...]` array in
 `extension.toml`. The canonical names are listed in Zed's default settings
 under `"languages"`.
 
-## Architecture
-
-```
-zed-boolean-toggle/
-├── extension.toml         ← Zed extension manifest (language list lives here)
-├── extension/             ← WASM adapter  (target: wasm32-wasip1)
-│   └── lib.rs         ← tells Zed which binary to launch
-├── server/                ← native LSP server binary
-│   └── src/main.rs        ← all toggle logic lives here
-└── Makefile
-```
-
-### Why two crates?
-
-Zed extensions run as **WebAssembly** inside a sandbox — they can't run
-arbitrary native code. Language servers, however, must run as native OS
-processes. The split is therefore:
-
-| Crate       | Target           | Role                                          |
-| ----------- | ---------------- | --------------------------------------------- |
-| `extension` | `wasm32-wasip1`  | Zed plugin adapter — finds and spawns the LSP |
-| `server`    | native OS binary | Language server — all toggle detection logic  |
-
 ### Data flow
 
 ```
@@ -198,12 +175,12 @@ The suite covers:
 
 ```bash
 # Native LSP binary
-cargo build --release --manifest-path server/Cargo.toml
-# → server/target/release/boolean-toggle-lsp
+cargo build --release
+# → target/release/boolean-toggle-lsp
 
 # WASM extension
 rustup target add wasm32-wasip1
-cargo build --target wasm32-wasip1 --release -p boolean-toggle
+cargo build --target wasm32-wasip1 --release
 # → target/wasm32-wasip1/release/boolean_toggle.wasm
 ```
 
@@ -233,7 +210,7 @@ for the full API.
 
 ## Adding new toggle pairs
 
-Edit `TOGGLE_PAIRS` in `server/src/main.rs`:
+Edit `TOGGLE_PAIRS` in `src/main.rs`:
 
 ```rust
 const TOGGLE_PAIRS: &[(&str, &str)] = &[
@@ -251,7 +228,7 @@ Rules for new pairs:
 
 - Always lowercase canonical form (case detection/application is automatic)
 - Word-boundary checking is automatic — no extra configuration needed
-- Rebuild with `make build-lsp` and `cargo install --path server`
+- Rebuild with `make build` and `cargo install --path .`
 
 ## Contributing
 
