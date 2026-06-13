@@ -1,8 +1,7 @@
-name: Release
-
+name: Continuous Integration
 on:
-  release:
-    types: [created]
+  - push
+  - pull_request
 
 jobs:
   build:
@@ -38,30 +37,25 @@ jobs:
         with:
           targets: ${{ matrix.target }}
 
-      - name: Build Release Binary
+      - name: Cache Cargo Dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install Dependencies
+        run: cargo fetch
+
+      - name: Build
         # Notice we explicitly point to the server's Cargo.toml
         run: cargo build --release --target ${{ matrix.target }} --manifest-path server/Cargo.toml
 
-      - name: Prepare Asset
-        shell: bash
-        run: |
-          # Define the path to the compiled binary
-          BIN_PATH="server/target/${{ matrix.target }}/release/boolean-toggle-lsp"
+      - name: Tests
+        run: make test
 
-          # Add .exe extension for Windows
-          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-            BIN_PATH="${BIN_PATH}.exe"
-          fi
-
-          # Copy and rename to the exact asset name expected by the extension
-          cp "$BIN_PATH" "${{ matrix.asset_name }}"
-
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./${{ matrix.asset_name }}
-          asset_name: ${{ matrix.asset_name }}
-          asset_content_type: application/octet-stream
+      # - name: "Publish to Zed Extensions Registry"
+      #   if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+      #   uses: huacnlee/zed-extension-action@v2
+      #   with:
+      #     extension-name: boolean-toggle
+      #     push-to: unlight/extensions # fork of zed-industries/extensions
+      #   env:
+      #     # Personal access token with "repo" and "workflow" scopes
+      #     COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}

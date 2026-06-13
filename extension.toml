@@ -3,15 +3,14 @@ name = "Boolean Toggle"
 description = "Toggle true/false, yes/no, on/off, 1/0 in any language, with case preservation."
 version = "0.3.0"
 schema_version = 1
-authors = ["Your Name <you@example.com>"]
+authors = ["unlight"]
 repository = "https://github.com/unlight/zed-boolean-toggle"
 
 # Zed starts the LSP when any file of a listed language is opened.
 # To add a language not listed here, append its Zed language name
 # (Settings → Open Default Settings → "languages" for the canonical names).
 [language_servers.boolean-toggle-lsp]
-id = "boolean-toggle-lsp"
-name = "Boolean Toggle LSP"
+name = "boolean-toggle-lsp"
 languages = [
   # Web
   "JavaScript",
