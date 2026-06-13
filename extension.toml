@@ -3,7 +3,7 @@ name = "Boolean Toggle"
 description = "Toggle true/false, yes/no, on/off, 1/0 in any language, with case preservation."
 version = "0.3.0"
 schema_version = 1
-authors = ["unlight"]
+authors = ["Roman"]
 repository = "https://github.com/unlight/zed-boolean-toggle"
 
 # Zed starts the LSP when any file of a listed language is opened.
