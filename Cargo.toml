@@ -1,11 +1,9 @@
-[package]
-name = "boolean-toggle"
-version = "0.1.2"
-edition = "2021"
+[workspace]
+members  = ["extension", "server"]
+resolver = "2"
 
-[lib]
-crate-type = ["cdylib"]
-path = "extension/src/lib.rs"
-
-[dependencies]
-zed_extension_api = "0.7.0"
+[workspace.package]
+version = "0.3.0"
+edition = "2024"
+authors = ["unlight"]
+license = "MIT"

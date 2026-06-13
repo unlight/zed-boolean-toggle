@@ -1,10 +1,16 @@
 [package]
 name = "boolean-toggle"
-version = "0.1.2"
-edition = "2021"
+description = "Zed WASM adapter for the boolean-toggle LSP server"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
 
+# cdylib is required for Zed WASM extensions.
 [lib]
-crate-type = ["cdylib"] # Required for Zed WASM extensions
+crate-type = ["cdylib"]
+path = "src/lib.rs"
 
 [dependencies]
+# Check https://crates.io/crates/zed_extension_api for the latest version.
 zed_extension_api = "0.7"

@@ -27,8 +27,7 @@ build: build-lsp build-ext
 
 ## Build the native LSP server binary (release mode).
 build-lsp:
-    cargo build --manifest-path server/Cargo.toml
-	# cargo build --release -p boolean-toggle-lsp
+	cargo build --release -p boolean-toggle-lsp
 
 ## Ensure the wasm32-wasip1 target is installed, then build the WASM extension.
 build-ext:
