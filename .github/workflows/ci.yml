@@ -49,7 +49,7 @@ jobs:
 
       - name: Build
         # Notice we explicitly point to the server's Cargo.toml
-        run: cargo build --release --target ${{ matrix.target }} --manifest-path server/Cargo.toml
+        run: cargo build --release --target ${{ matrix.target }}
 
       - name: Tests
         run: make test
